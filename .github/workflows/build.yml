@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-    # Use 2022 as it has more stable WDK support in the runner
     runs-on: windows-2022
 
     steps:
@@ -18,11 +17,17 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    # Drivers require the Windows Driver Kit (WDK)
-    # This action sets up the necessary environment variables for Driver SDKs
-    - name: Setup WDK
-      uses: microsoft/setup-msbuild@v2 # MSBuild setup is usually enough if WDK is present
-
     - name: Build Driver
       run: |
-        msbuild src/Zodiak.sln /p:Configuration=Release /p:Platform=x64 /p:TargetVersion="Windows10"
+        msbuild src/Zodiak.sln `
+        /p:Configuration=Release `
+        /p:Platform=x64 `
+        /p:TargetVersion="Windows10" `
+        /p:SignMode=Off `
+        /p:OutDir="D:\a\output\"
+
+    - name: Upload Driver Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Zodiak-Driver
+        path: D:\a\output\Zodiak.sys
