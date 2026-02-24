@@ -8,7 +8,8 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    # Use 2022 as it has more stable WDK support in the runner
+    runs-on: windows-2022
 
     steps:
     - name: Checkout code
@@ -17,6 +18,11 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Build Solution
+    # Drivers require the Windows Driver Kit (WDK)
+    # This action sets up the necessary environment variables for Driver SDKs
+    - name: Setup WDK
+      uses: microsoft/setup-msbuild@v2 # MSBuild setup is usually enough if WDK is present
+
+    - name: Build Driver
       run: |
-        msbuild src/Zodiak.sln /p:Configuration=Release /p:Platform=x64
+        msbuild src/Zodiak.sln /p:Configuration=Release /p:Platform=x64 /p:TargetVersion="Windows10"
